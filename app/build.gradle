@@ -7,7 +7,7 @@ import org.objectweb.asm.commons.Remapper
 
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    // Kotlin plugin is applied elsewhere (root/convention). Do not apply again here.
 }
 
 def gitCommitCount
@@ -32,6 +32,7 @@ android {
     compileSdk = 35
     buildToolsVersion = '35.0.1'
     namespace = 'io.github.vvb2060.keyattestation'
+
     defaultConfig {
         minSdk = 24
         targetSdk = 35
@@ -62,6 +63,7 @@ android {
             keyPassword System.getenv("KEY_PASSWORD") ?: properties.getProperty("keyPassword")
         }
     }
+
     buildTypes {
         debug {
             versionNameSuffix '-debug'
@@ -78,11 +80,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-    kotlinOptions {
-        jvmTarget = "21"
-        options.languageVersion = KotlinVersion.KOTLIN_2_1
-        options.progressiveMode = true
     }
 
     buildFeatures {
@@ -107,6 +104,14 @@ android {
 
     lint.checkReleaseBuilds false
     dependenciesInfo.includeInApk false
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        progressiveMode.set(true)
+    }
 }
 
 tasks.withType(CompileArtProfileTask.class).configureEach {
@@ -144,8 +149,7 @@ dependencies {
 
 androidComponents {
     onVariants(selector().all(), {
-        instrumentation.transformClassesWith(ClassVisitorFactory.class,
-                InstrumentationScope.PROJECT) {}
+        instrumentation.transformClassesWith(ClassVisitorFactory.class, InstrumentationScope.PROJECT) {}
     })
 }
 
